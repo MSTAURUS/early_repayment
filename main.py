@@ -3,8 +3,6 @@ import datetime
 
 from bottle import route, post, run, request, response
 
-D = datetime.datetime.now()
-
 HEADER = """<html>
         <title>Расчёт погашения задолжности</title>
         <head>
@@ -71,8 +69,9 @@ def gettablerow(success: str, i: int, print_date: str, summ: float, percent_summ
 
 
 def calccalenadar(summ: float, d_summ: float, percent: float, pay: float) -> str:
-    year: int = D.year
-    month: int = D.month - 1
+    curr_date: datetime = datetime.datetime.now()
+    year: int = curr_date.year
+    month: int = curr_date.month - 1
     month: int = 12 if month < 1 else month
     days_year: int = getlastdayinyear(year)
     days_month: int = getlastdayinmonth(year, month)
