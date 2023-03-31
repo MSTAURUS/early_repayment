@@ -10,6 +10,6 @@ RUN mkdir /project
 WORKDIR /project
 COPY ./main.py /project/main.py
 
-EXPOSE 80
+EXPOSE 8590
 
 ENTRYPOINT ["python", "main.py"]

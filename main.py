@@ -1,5 +1,6 @@
 import calendar
 import datetime
+import socket
 
 from bottle import route, post, run, request, response
 
@@ -144,4 +145,5 @@ def do_calc():
 
 
 if __name__ == "__main__":
-    run(host="127.0.0.1", port=8585, reloader=True)
+    print(f"server ip: {socket.gethostbyname(socket.gethostname())}")
+    run(host="0.0.0.0", port=8590, reloader=True)
