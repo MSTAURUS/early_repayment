@@ -2,51 +2,10 @@ import calendar
 import datetime
 import socket
 
-from bottle import route, post, run, request, response
+from bottle import route, post, run, request, response, template, static_file
+from models import ClassResult
 
-HEADER = """<html>
-        <title>Расчёт погашения задолжности</title>
-        <head>
-            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" 
-                            integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" 
-                            crossorigin="anonymous">
-        </head>
-        <div class="container">
-        <div class="row justify-content-md-center">"""
-
-FOOTER = """</div></div></html>"""
-
-TABLE_HEAD = """
-    <table class="table table-striped table-hover">
-    <thead class="thead-inverse">
-    <tr>
-        <th>#</th><th>Дата</th><th>Остаток</th><th>Проценты</th>
-    </tr>
-    </thead><tbody>
-    """
-
-FORM = """
-    <form action="/" method="post">
-        <label for="summ">Остаток: </label>
-        <input name="summ" type="text" class="form-control" id="summ" value="%s" autocomplete="off" required="True"/> 
-        <br />
-
-        <label for="percent">Процент:</label>
-        <input name="percent" type="text" class="form-control" id="percent" value="%s" autocomplete="off" required="True"/> 
-        <br />
-
-        <label for="pay">Платёж:</label>
-        <input name="pay" type="text" class="form-control" id="pay" autocomplete="off" required="True" /> <br />
-
-        <label for="d_summ">Доп. сумма в конце:</label>
-        <input name="d_summ" type="text" class="form-control" id="d_summ" autocomplete="off" /> <br />
-
-        <input value="Расчитать" type="submit" class="btn btn-primary"/>
-    </form>
-    """
-
-FOOTER_TABLE_PAGE = """</tbody> </table>
-    <a href="/" class="underline-link small"> Назад </a>"""
+ERROR_MSG = """Сумма платежа меньше или равна месячным процентам."""
 
 
 def getlastdayinyear(year: int) -> int:
@@ -83,7 +42,16 @@ def calccalenadar(summ: float, d_summ: float, percent: float, pay: float) -> str
     response.set_cookie("summ", str(summ))
     response.set_cookie("percent", str(percent))
 
-    result = TABLE_HEAD
+    # класс для строчки таблицы
+    table_row = ClassResult()
+
+    # посчитаем проценты
+    test_percent_summ: float = round(
+        (((summ / 100) * percent) / days_year) * days_month, 2
+    )
+
+    if pay <= test_percent_summ:
+        return index(ERROR_MSG)
 
     i: int = 0
     while summ > 0:
@@ -114,19 +82,20 @@ def calccalenadar(summ: float, d_summ: float, percent: float, pay: float) -> str
 
         print_date = printdate(days_month, month, year)
 
-        result += gettablerow(success, i, print_date, summ, percent_summ)
+        table_row.add(success, i, print_date, summ, percent_summ)
 
-    return HEADER + result + FOOTER_TABLE_PAGE + FOOTER
+    # return HEADER + result + FOOTER_TABLE_PAGE + BACK_LINK + FOOTER
+    return template("result.tmpl", result=table_row.get())
 
 
 @route("/")
 def index():
-    result: str = HEADER + FORM + FOOTER
-
+    error: str = ""
     summ: str = request.get_cookie("summ") or ""
     percent: str = request.get_cookie("percent") or ""
 
-    return result % (summ, percent)
+    # return result % (summ, percent)
+    return template("index.tmpl", summ=summ, percent=percent, error=error)
 
 
 @post("/")
@@ -142,6 +111,11 @@ def do_calc():
     d_summ: float = float(d_summ.replace(",", "."))
 
     return calccalenadar(summ, d_summ, percent, pay)
+
+
+@route("/static/<filepath:path>")
+def server_static(filepath):
+    return static_file(filepath, root='./static')
 
 
 if __name__ == "__main__":
