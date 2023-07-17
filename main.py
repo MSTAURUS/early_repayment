@@ -89,13 +89,13 @@ def calccalenadar(summ: float, d_summ: float, percent: float, pay: float) -> str
 
 
 @route("/")
-def index():
-    error: str = ""
+def index(err: str = None):
+    # error: str = ""
     summ: str = request.get_cookie("summ") or ""
     percent: str = request.get_cookie("percent") or ""
 
     # return result % (summ, percent)
-    return template("index.tmpl", summ=summ, percent=percent, error=error)
+    return template("index.tmpl", summ=summ, percent=percent, error=err)
 
 
 @post("/")
@@ -119,5 +119,4 @@ def server_static(filepath):
 
 
 if __name__ == "__main__":
-    print(f"server ip: {socket.gethostbyname(socket.gethostname())}")
     run(host="0.0.0.0", port=8590, reloader=True)

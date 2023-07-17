@@ -1,5 +1,10 @@
 % rebase('base.tmpl')
-        <div class="row justify-content-md-center">
+    % if error:
+        <div class="alert alert-danger" role="alert">
+            {{error}}
+        </div>
+    % end
+        <div class="row justify-content-center pt-3">
             <form action="/" method="post">
                 <label for="summ" >Остаток: </label>
                 <input name="summ" type="text" class="form-control" id="summ" value="{{summ}}" autocomplete="off" required="True" data-mask="decimals" />
