@@ -7,19 +7,18 @@
         <div class="row justify-content-center pt-3">
             <form action="/" method="post">
                 <label for="summ" >Остаток: </label>
-                <input name="summ" type="text" class="form-control" id="summ" value="{{summ}}" autocomplete="off" required="True" data-mask="decimals" />
+                <input name="summ" type="text" class="form-control decimal" id="summ" value="{{summ}}" autocomplete="off" required="True"  />
                 <br />
                 <label for="percent">Процент:</label>
-                <input name="percent" type="text" class="form-control" id="percent" value="{{percent}}" autocomplete="off" required="True" data-mask="decimals" />
+                <input name="percent" type="text" class="form-control decimal" id="percent" value="{{percent}}" autocomplete="off" required="True" />
                 <br />
                 <label for="pay">Платёж:</label>
-                <input name="pay" type="text" class="form-control" id="pay" autocomplete="off" required="True" data-mask="decimals" /> <br />
+                <input name="pay" type="text" class="form-control decimal" id="pay" autocomplete="off" required="True" /> <br />
                 <label for="d_summ">Доп. сумма в конце:</label>
-                <input name="d_summ" type="text" class="form-control" id="d_summ" autocomplete="off" data-mask="decimals" /> <br />
+                <input name="d_summ" type="text" class="form-control decimal" id="d_summ" autocomplete="off" /> <br />
                 <input value="Рассчитать" type="submit" class="btn btn-primary"/>
             </form>
         </div>
         <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="/static/js/all.min.js"></script>
-
+        <script src="/static/js/script.js"></script>
 </head>
