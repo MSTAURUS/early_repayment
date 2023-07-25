@@ -4,21 +4,67 @@
             {{error}}
         </div>
     % end
-        <div class="row justify-content-center pt-3">
-            <form action="/" method="post">
-                <label for="summ" >Остаток: </label>
-                <input name="summ" type="text" class="form-control decimal" id="summ" value="{{summ}}" autocomplete="off" required="True"  />
-                <br />
-                <label for="percent">Процент:</label>
-                <input name="percent" type="text" class="form-control decimal" id="percent" value="{{percent}}" autocomplete="off" required="True" />
-                <br />
-                <label for="pay">Платёж:</label>
-                <input name="pay" type="text" class="form-control decimal" id="pay" autocomplete="off" required="True" /> <br />
-                <label for="d_summ">Доп. сумма в конце:</label>
-                <input name="d_summ" type="text" class="form-control decimal" id="d_summ" autocomplete="off" /> <br />
-                <input value="Рассчитать" type="submit" class="btn btn-primary"/>
-            </form>
+        <div class="row">
+          <div class="col-sm-6  pt-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Расчёт сроков по платежу</h5>
+                    <form action="/" method="post">
+                        <label for="summ" >Остаток: </label>
+                        <input name="summ" type="text" class="form-control decimal" id="summ" value="{{summ}}" autocomplete="off" required="True"  />
+                        <br />
+                        <label for="percent">Процент:</label>
+                        <input name="percent" type="text" class="form-control decimal" id="percent" value="{{percent}}" autocomplete="off" required="True" />
+                        <br />
+                        <label for="pay">Платёж:</label>
+                        <input name="pay" type="text" class="form-control decimal" id="pay" autocomplete="off" required="True" /> <br />
+                        <label for="d_summ">Доп. сумма в конце:</label>
+                        <input name="d_summ" type="text" class="form-control decimal" id="d_summ" autocomplete="off" /> <br />
+                        <input value="Рассчитать" type="submit" class="btn btn-primary"/>
+                    </form>
+                </div>
+            </div>
+          </div>
+          <div class="col-sm-6 pt-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Расчёт платежа к сроку</h5>
+                    <form action="/paytodate" method="post">
+                        <label for="summ" >Остаток: </label>
+                        <input name="summ" type="text" class="form-control decimal" id="summ" value="{{percent}}" autocomplete="off" required="True"  />
+                        <br />
+                        <label for="percent">Процент:</label>
+                        <input name="percent" type="text" class="form-control decimal" id="percent" value="16.4" autocomplete="off" required="True" />
+                        <br />
+         
+                        <div class="group_dropdown pb-3"> 
+                           <select size="1" name="month" class="form-control">
+                            <option disabled>Выберите месяц</option>
+                            <option value="1">Январь</option>
+                            <option value="2">Февраль</option>
+                            <option value="3">Март</option>
+                            <option value="4">Апрель</option>
+                            <option value="5">Май</option>
+                            <option value="6">Июнь</option>
+                            <option value="7">Июль</option>
+                            <option value="8">Август</option>
+                            <option value="9">Сентябрь</option>
+                            <option value="10">Октябрь</option>
+                            <option value="11">Ноябрь</option>
+                            <option value="12">Декабрь</option>
+                           </select>
+                           <br />
+                           <select size="1" name="year" class="form-control">
+                            <option disabled>Выберите Год</option>
+                            <option value="2023">2023</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                           </select>   
+                        </div>
+
+                        <input value="Рассчитать" type="submit" class="btn btn-primary"/>
+                    </form>
+                </div>
+            </div>
+          </div>
         </div>
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="/static/js/script.js"></script>
-</head>
