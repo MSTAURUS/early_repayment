@@ -1,91 +1,14 @@
-import calendar
-import datetime
-import socket
+from datetime import date, datetime
+from typing import List
 
-from bottle import route, post, run, request, response, template, static_file
+from bottle import post, request, route, run, static_file, template
+from dateutil.parser import parse as du_parse
+from dateutil.relativedelta import relativedelta
+
+from consts import Consts
+from func import (StrToIntDef, calc_calendar, calc_pay_to_date,
+                  get_last_day_in_month)
 from models import ClassResult
-
-ERROR_MSG = """Сумма платежа меньше или равна месячным процентам."""
-
-
-def getlastdayinyear(year: int) -> int:
-    t_d = datetime.datetime(year, 12, 31)
-    return int(t_d.strftime("%j"))
-
-
-def getlastdayinmonth(year: int, month: int) -> int:
-    t_d = calendar.monthrange(year, month)
-    return int(t_d[1])
-
-
-def printdate(day: int, month: int, year: int) -> str:
-    if month < 10:
-        month = f"0{month}"
-    return f"{day}.{month}.{year}"
-
-
-def gettablerow(success: str, i: int, print_date: str, summ: float, percent_summ: float) -> str:
-    return f"     <tr {success}><td>{i}</td><td>{print_date}</td><td>{summ}</td><td>{percent_summ}</td></tr>"
-
-
-def calccalenadar(summ: float, d_summ: float, percent: float, pay: float) -> str:
-    curr_date: datetime = datetime.datetime.now()
-    year: int = curr_date.year
-    month: int = curr_date.month - 1
-    month: int = 12 if month < 1 else month
-    days_year: int = getlastdayinyear(year)
-    days_month: int = getlastdayinmonth(year, month)
-    success: str = ""
-    enabled_d_summ: bool = False
-
-    # set cookies
-    response.set_cookie("summ", str(summ))
-    response.set_cookie("percent", str(percent))
-
-    # класс для строчки таблицы
-    table_row = ClassResult()
-
-    # посчитаем проценты
-    test_percent_summ: float = round(
-        (((summ / 100) * percent) / days_year) * days_month, 2
-    )
-
-    if pay <= test_percent_summ:
-        return index(ERROR_MSG)
-
-    i: int = 0
-    while summ > 0:
-        # сумма процента на текущий месяц
-        percent_summ: float = round(
-            (((summ / 100) * percent) / days_year) * days_month, 2
-        )
-        # если остаток+доп сумма уже меньше - вычтем
-        if (summ <= pay + d_summ) and not enabled_d_summ:
-            summ -= d_summ
-            enabled_d_summ = True
-
-        # остаток долг
-        if summ >= pay:
-            summ = round(summ - (pay - percent_summ), 2)
-        else:
-            summ = 0
-            success = 'class="table-success"'
-        month += 1
-        i += 1
-
-        if month > 12:
-            month = 1
-            year += 1
-            days_year = getlastdayinyear(year)
-
-        days_month = getlastdayinmonth(year, month)
-
-        print_date = printdate(days_month, month, year)
-
-        table_row.add(success, i, print_date, summ, percent_summ)
-
-    # return HEADER + result + FOOTER_TABLE_PAGE + BACK_LINK + FOOTER
-    return template("result.tmpl", result=table_row.get())
 
 
 @route("/")
@@ -94,8 +17,21 @@ def index(err: str = None):
     summ: str = request.get_cookie("summ") or ""
     percent: str = request.get_cookie("percent") or ""
 
-    # return result % (summ, percent)
-    return template("index.tmpl", summ=summ, percent=percent, error=err)
+    cur_year: int = datetime.now().year
+
+    cur_month: int = datetime.now().month
+
+    years_list: List = [*range(cur_year, cur_year + Consts.MORTGAGE_TERM)]
+
+    return template(
+        "index.tmpl",
+        summ=summ,
+        percent=percent,
+        years_list=years_list,
+        cur_month=cur_month,
+        error=err,
+        month_list=Consts.MONTH_DICT,
+    )
 
 
 @post("/")
@@ -110,12 +46,63 @@ def do_calc():
     pay: float = float(pay.replace(",", "."))
     d_summ: float = float(d_summ.replace(",", "."))
 
-    return calccalenadar(summ, d_summ, percent, pay)
+    table_row: ClassResult = calc_calendar(summ, d_summ, percent, pay)
+
+    if table_row.isEmpty():
+        return index(Consts.ERROR_MSG)
+
+    return template("result.tmpl", result=table_row.get())
 
 
 @route("/static/<filepath:path>")
 def server_static(filepath):
-    return static_file(filepath, root='./static')
+    return static_file(filepath, root="./static")
+
+
+@post("/paytodate", method=["POST"])
+def pay_to_date():
+    summ: str = request.forms.get("summ_t_d") or "0"
+    summ: float = float(summ.replace(",", "."))
+
+    percent: str = request.forms.get("percent_t_d") or "0"
+    percent: float = float(percent.replace(",", "."))
+
+    month: str = request.forms.get("month") or "0"
+    year: str = request.forms.get("year") or "0"
+
+    month: int = StrToIntDef(month, 0)
+
+    year: int = StrToIntDef(year, 0)
+
+    # текущая дата
+    curr_date: datetime = datetime.now()
+
+    # проверим даты
+    if month < 1 or month > 12:
+        return index(Consts.ERROR_DATE)
+
+    if year < curr_date.year or year > (curr_date.year + Consts.MORTGAGE_TERM):
+        return index(Consts.ERROR_DATE)
+
+    # Последний день в месяце
+    day: int = get_last_day_in_month(year, month)
+
+    tmp_finish_date: str = f"{day}.{month}.{year}"
+
+    # тут нужна проверка на дату
+    finish_date: date = du_parse(tmp_finish_date)
+    delta: relativedelta = relativedelta(finish_date, curr_date)
+
+    if finish_date <= curr_date:
+        return index(Consts.ERROR_DELTA)
+
+    pay_sum_to_date: float = calc_pay_to_date(summ, percent, delta)
+
+    if pay_sum_to_date <= -1:
+        return index(Consts.ERROR_CALC_TO_DATE)
+
+    table_row: ClassResult = calc_calendar(summ, 0, percent, pay_sum_to_date)
+    return template("result.tmpl", result=table_row.get())
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ RUN mkdir /project/static
 COPY ./static /project/static
 
 RUN mkdir /project/views
-COPY ./views /project/views
+COPY views /project/views
 
 
 EXPOSE 8590

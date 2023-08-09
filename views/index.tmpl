@@ -30,35 +30,29 @@
                 <div class="card-body">
                     <h5 class="card-title">Расчёт платежа к сроку</h5>
                     <form action="/paytodate" method="post">
-                        <label for="summ" >Остаток: </label>
-                        <input name="summ" type="text" class="form-control decimal" id="summ" value="{{percent}}" autocomplete="off" required="True"  />
+                        <label for="summ_t_d" >Остаток: </label>
+                        <input name="summ_t_d" type="text" class="form-control decimal" id="summ_t_d" value="{{summ}}" autocomplete="off" required="True"  />
                         <br />
-                        <label for="percent">Процент:</label>
-                        <input name="percent" type="text" class="form-control decimal" id="percent" value="16.4" autocomplete="off" required="True" />
+                        <label for="percent_t_d">Процент:</label>
+                        <input name="percent_t_d" type="text" class="form-control decimal" id="percent_t_d" value="{{percent}}" autocomplete="off" required="True" />
                         <br />
          
-                        <div class="group_dropdown pb-3"> 
+                        <div class="group_dropdown pb-3">
                            <select size="1" name="month" class="form-control">
-                            <option disabled>Выберите месяц</option>
-                            <option value="1">Январь</option>
-                            <option value="2">Февраль</option>
-                            <option value="3">Март</option>
-                            <option value="4">Апрель</option>
-                            <option value="5">Май</option>
-                            <option value="6">Июнь</option>
-                            <option value="7">Июль</option>
-                            <option value="8">Август</option>
-                            <option value="9">Сентябрь</option>
-                            <option value="10">Октябрь</option>
-                            <option value="11">Ноябрь</option>
-                            <option value="12">Декабрь</option>
+                            % for num, month in month_list.items():
+                            %if num == cur_month:
+                            <option value="{{num}}" selected>{{month}}</option>
+                            %else:
+                            <option value="{{num}}">{{month}}</option>
+                            %end
+                            % end
                            </select>
                            <br />
                            <select size="1" name="year" class="form-control">
                             <option disabled>Выберите Год</option>
-                            <option value="2023">2023</option>
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
+                            % for year in years_list:
+                            <option value="{{year}}">{{year}}</option>
+                            % end
                            </select>   
                         </div>
 
