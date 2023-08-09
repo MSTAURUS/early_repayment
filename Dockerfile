@@ -10,6 +10,8 @@ RUN mkdir /project
 WORKDIR /project
 COPY ./main.py /project/main.py
 COPY ./models.py /project/models.py
+COPY ./consts.py /project/consts.py
+COPY ./func.py /project/func.py
 
 RUN mkdir /project/static
 COPY ./static /project/static
