@@ -32,15 +32,11 @@ def print_date(day: int, month: int, year: int) -> str:
     return f"{day}.{month}.{year}"
 
 
-def get_table_row(success: str, i: int, print_date_line: str, summ: float, percent_summ: float) -> str:
-    return f"     <tr {success}><td>{i}</td><td>{print_date_line}</td><td>{summ}</td><td>{percent_summ}</td></tr>"
-
-
 def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> ClassResult:
     curr_date: datetime = datetime.now()
     year: int = curr_date.year
     month: int = curr_date.month - 1
-    month: int = 12 if month < 1 else month
+    month: int = 1 if month < 1 else month
     days_year: int = get_last_day_in_year(year)
     days_month: int = get_last_day_in_month(year, month)
     success: str = ""
@@ -73,6 +69,7 @@ def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> Cla
         if summ >= pay:
             summ = round(summ - (pay - percent_summ), 2)
         else:
+            pay = round(summ + percent_summ, 2)
             summ = 0
             success = 'class="table-success"'
         month += 1
@@ -96,6 +93,9 @@ def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> Cla
 def get_count_payment_month(payment_summ: float, pay: float, percent: float, cur_date: datetime) -> int:
     year: int = cur_date.year
     month: int = cur_date.month - 1
+
+    # для января
+    month = 12 if month == 0 else month
 
     days_year: int = get_last_day_in_year(year)
     days_month: int = get_last_day_in_month(year, month)
@@ -123,8 +123,8 @@ def get_count_payment_month(payment_summ: float, pay: float, percent: float, cur
 def calc_pay_to_date(summ: float, percent: float, delta: relativedelta) -> float:
     curr_date: datetime = datetime.now()
 
-    # количество месяцев + текущий
-    count_month = delta.years * 12 + delta.months + 1
+    # количество месяцев
+    count_month = delta.years * 12 + delta.months
 
     summ_percent: float = round((((summ / 100) * percent) / 12) * count_month, 2)
 
