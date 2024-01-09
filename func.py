@@ -35,8 +35,8 @@ def print_date(day: int, month: int, year: int) -> str:
 def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> ClassResult:
     curr_date: datetime = datetime.now()
     year: int = curr_date.year
-    month: int = curr_date.month - 1
-    month: int = 1 if month < 1 else month
+    month: int = curr_date.month
+    # month: int = 1 if month == 0 else month
     days_year: int = get_last_day_in_year(year)
     days_month: int = get_last_day_in_month(year, month)
     success: str = ""
@@ -56,7 +56,7 @@ def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> Cla
     if pay <= test_percent_summ:
         return table_row
 
-    i: int = 0
+    i: int = 1
     while summ > 0:
         # сумма процента на текущий месяц
         percent_summ: float = round((((summ / 100) * percent) / days_year) * days_month, 2)
@@ -72,6 +72,11 @@ def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> Cla
             pay = round(summ + percent_summ, 2)
             summ = 0
             success = 'class="table-success"'
+
+        print_date_data = print_date(days_month, month, year)
+
+        table_row.add(success, i, print_date_data, summ, percent_summ, pay)
+
         month += 1
         i += 1
 
@@ -81,10 +86,6 @@ def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> Cla
             days_year = get_last_day_in_year(year)
 
         days_month = get_last_day_in_month(year, month)
-
-        print_date_data = print_date(days_month, month, year)
-
-        table_row.add(success, i, print_date_data, summ, percent_summ, pay)
 
     # return HEADER + result + FOOTER_TABLE_PAGE + BACK_LINK + FOOTER
     return table_row
@@ -123,8 +124,8 @@ def get_count_payment_month(payment_summ: float, pay: float, percent: float, cur
 def calc_pay_to_date(summ: float, percent: float, delta: relativedelta) -> float:
     curr_date: datetime = datetime.now()
 
-    # количество месяцев
-    count_month = delta.years * 12 + delta.months
+    # количество месяцев + текущий
+    count_month = delta.years * 12 + delta.months + 1
 
     summ_percent: float = round((((summ / 100) * percent) / 12) * count_month, 2)
 

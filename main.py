@@ -1,3 +1,4 @@
+import os
 from datetime import date, datetime
 from typing import List
 
@@ -43,8 +44,11 @@ def do_calc():
 
     summ: float = float(summ.replace(",", "."))
     percent: float = float(percent.replace(",", "."))
-    pay: float = float(pay.replace(",", "."))
     d_summ: float = float(d_summ.replace(",", "."))
+    pay: float = round(float(pay.replace(",", ".")), 2)
+
+    if pay.is_integer:
+        pay: int = int(pay)
 
     table_row: ClassResult = calc_calendar(summ, d_summ, percent, pay)
 
@@ -106,4 +110,7 @@ def pay_to_date():
 
 
 if __name__ == "__main__":
+    debug: str = os.environ.get("DEBUG")
+    if debug:
+        run(host="127.0.0.1", port=8590, reloader=True)
     run(host="0.0.0.0", port=8590, reloader=True)

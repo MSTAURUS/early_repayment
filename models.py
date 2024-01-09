@@ -29,3 +29,6 @@ class ClassResult:
 
     def isEmpty(self):
         return len(self.__data) == 0
+
+    def len(self) -> int:
+        return len(self.__data)
