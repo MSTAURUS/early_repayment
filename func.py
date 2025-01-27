@@ -1,7 +1,6 @@
 import calendar
 from datetime import datetime
 
-from bottle import response
 from dateutil.relativedelta import relativedelta
 
 from models import ClassResult

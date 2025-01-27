@@ -3,7 +3,7 @@ import os
 from datetime import date, datetime
 from typing import List
 
-from bottle import post, request, route, run, static_file, template, response
+from bottle import post, request, response, route, run, static_file, template
 from dateutil.parser import parse as du_parse
 from dateutil.relativedelta import relativedelta
 
@@ -121,7 +121,9 @@ def pay_to_date():
     response.set_cookie("summ", str(summ))
     response.set_cookie("percent", str(percent))
 
-    return template("result.html", result=table_row.get(), theme=theme)
+    result: list = table_row.get()
+
+    return template("result.html", result=result, theme=theme)
 
 
 if __name__ == "__main__":
