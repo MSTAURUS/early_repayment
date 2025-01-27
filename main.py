@@ -1,14 +1,14 @@
+import logging
 import os
 from datetime import date, datetime
 from typing import List
 
-from bottle import post, request, route, run, static_file, template
+from bottle import post, request, route, run, static_file, template, response
 from dateutil.parser import parse as du_parse
 from dateutil.relativedelta import relativedelta
 
 from consts import Consts
-from func import (StrToIntDef, calc_calendar, calc_pay_to_date,
-                  get_last_day_in_month)
+from func import StrToIntDef, calc_calendar, calc_pay_to_date, get_last_day_in_month
 from models import ClassResult
 
 
@@ -17,6 +17,7 @@ def index(err: str = None):
     # error: str = ""
     summ: str = request.get_cookie("summ") or ""
     percent: str = request.get_cookie("percent") or ""
+    theme = request.get_cookie("theme") or "light"
 
     cur_year: int = datetime.now().year
 
@@ -25,13 +26,14 @@ def index(err: str = None):
     years_list: List = [*range(cur_year, cur_year + Consts.MORTGAGE_TERM)]
 
     return template(
-        "index.tmpl",
+        "index.html",
         summ=summ,
         percent=percent,
         years_list=years_list,
         cur_month=cur_month,
         error=err,
         month_list=Consts.MONTH_DICT,
+        theme=theme,
     )
 
 
@@ -47,6 +49,12 @@ def do_calc():
     d_summ: float = float(d_summ.replace(",", "."))
     pay: float = round(float(pay.replace(",", ".")), 2)
 
+    theme = request.get_cookie("theme") or "light"
+
+    # set cookies
+    response.set_cookie("summ", str(summ))
+    response.set_cookie("percent", str(percent))
+
     if pay.is_integer:
         pay: int = int(pay)
 
@@ -55,7 +63,7 @@ def do_calc():
     if table_row.isEmpty():
         return index(Consts.ERROR_MSG)
 
-    return template("result.tmpl", result=table_row.get())
+    return template("result.html", result=table_row.get(), theme=theme)
 
 
 @route("/static/<filepath:path>")
@@ -106,7 +114,14 @@ def pay_to_date():
         return index(Consts.ERROR_CALC_TO_DATE)
 
     table_row: ClassResult = calc_calendar(summ, 0, percent, pay_sum_to_date)
-    return template("result.tmpl", result=table_row.get())
+
+    theme = request.get_cookie("theme") or "light"
+
+    # set cookies
+    response.set_cookie("summ", str(summ))
+    response.set_cookie("percent", str(percent))
+
+    return template("result.html", result=table_row.get(), theme=theme)
 
 
 if __name__ == "__main__":

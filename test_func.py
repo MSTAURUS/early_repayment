@@ -1,8 +1,17 @@
 import unittest
 from datetime import datetime
+
 from dateutil.relativedelta import relativedelta
-from func import StrToIntDef, get_last_day_in_year, get_last_day_in_month, print_date, calc_calendar, \
-    get_count_payment_month, calc_pay_to_date
+
+from func import (
+    StrToIntDef,
+    calc_calendar,
+    calc_pay_to_date,
+    get_count_payment_month,
+    get_last_day_in_month,
+    get_last_day_in_year,
+    print_date,
+)
 
 
 class TestFunctions(unittest.TestCase):
@@ -225,5 +234,5 @@ class TestFunctions(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

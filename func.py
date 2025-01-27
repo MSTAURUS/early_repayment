@@ -42,10 +42,6 @@ def calc_calendar(summ: float, d_summ: float, percent: float, pay: float) -> Cla
     success: str = ""
     enabled_d_summ: bool = False
 
-    # set cookies
-    response.set_cookie("summ", str(summ))
-    response.set_cookie("percent", str(percent))
-
     # класс для строчки таблицы
     table_row = ClassResult()
 

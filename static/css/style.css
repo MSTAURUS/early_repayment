@@ -1,0 +1,39 @@
+/* Светлая тема по умолчанию */
+:root {
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --card-background: #f8f9fa;
+    --card-text: #000000;
+    --table-success: #c3e6cb;
+}
+
+/* Тёмная тема */
+[data-theme="dark"] {
+    --background-color: #242D36;
+    --text-color: #ffffff;
+    --card-background: #3D4A58;
+    --card-text: #ffffff;
+    --table-success: #20c997;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.card {
+    background-color: var(--card-background);
+    color: var(--card-text);
+}
+
+.btn-secondary {
+    background-color: var(--card-background);
+    border-color: var(--card-background);
+    color: var(--card-text);
+}
+
+.table-success {
+    > th, td {
+        background-color: var(--table-success); !important;
+    }
+}
