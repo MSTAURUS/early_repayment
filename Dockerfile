@@ -1,10 +1,23 @@
-FROM python:3.9-alpine
+FROM alpine:latest AS build
+
+RUN apk add --no-cache python3 py3-pip
+
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt /tmp/requirements.txt
+
+RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
+RUN pip3 uninstall -y pip setuptools packaging
+
+FROM alpine:latest AS release
 
 LABEL desc="OpenCalc v1"
 
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --upgrade pip --no-cache-dir
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN apk add --no-cache python3
+
+COPY --from=build /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 RUN mkdir /project
 WORKDIR /project

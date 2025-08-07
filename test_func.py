@@ -3,15 +3,9 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 
-from func import (
-    StrToIntDef,
-    calc_calendar,
-    calc_pay_to_date,
-    get_count_payment_month,
-    get_last_day_in_month,
-    get_last_day_in_year,
-    print_date,
-)
+from func import (StrToIntDef, calc_calendar, calc_pay_to_date,
+                  get_count_payment_month, get_last_day_in_month,
+                  get_last_day_in_year, print_date)
 
 
 class TestFunctions(unittest.TestCase):

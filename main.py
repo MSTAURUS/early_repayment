@@ -1,18 +1,36 @@
 import logging
 import os
 from datetime import date, datetime
+from pathlib import Path
 from typing import List
 
-from bottle import post, request, response, route, run, static_file, template
+from bottle import (Bottle, post, request, response, route, run, static_file,
+                    template)
 from dateutil.parser import parse as du_parse
 from dateutil.relativedelta import relativedelta
 
 from consts import Consts
-from func import StrToIntDef, calc_calendar, calc_pay_to_date, get_last_day_in_month
+from func import (StrToIntDef, calc_calendar, calc_pay_to_date,
+                  get_last_day_in_month)
 from models import ClassResult
 
+app = Bottle()
 
-@route("/")
+filename: Path = Path("opencalc.log")
+log_path: Path = Path("log")
+
+if not log_path.exists():
+    log_path.mkdir()
+
+logging.basicConfig(
+    filename=log_path / filename,
+    level=logging.ERROR,
+    format="[%(asctime)s] %(levelname).1s %(message)s",
+    datefmt="%d.%m.%Y %H:%M:%S",
+)
+
+
+@app.route("/")
 def index(err: str = None):
     # error: str = ""
     summ: str = request.get_cookie("summ") or ""
@@ -37,7 +55,7 @@ def index(err: str = None):
     )
 
 
-@post("/")
+@app.post("/")
 def do_calc():
     summ: str = request.forms.get("summ") or "0"
     percent: str = request.forms.get("percent") or "0"
@@ -66,12 +84,12 @@ def do_calc():
     return template("result.html", result=table_row.get(), theme=theme)
 
 
-@route("/static/<filepath:path>")
+@app.route("/static/<filepath:path>")
 def server_static(filepath):
     return static_file(filepath, root="./static")
 
 
-@post("/paytodate", method=["POST"])
+@app.post("/paytodate", method=["POST"])
 def pay_to_date():
     summ: str = request.forms.get("summ_t_d") or "0"
     summ: float = float(summ.replace(",", "."))
@@ -129,5 +147,5 @@ def pay_to_date():
 if __name__ == "__main__":
     debug: str = os.environ.get("DEBUG")
     if debug:
-        run(host="127.0.0.1", port=8590, reloader=True)
-    run(host="0.0.0.0", port=8590, reloader=True)
+        run(app, host="127.0.0.1", port=8590, reloader=True)
+    run(app, host="0.0.0.0", port=8590, reloader=True)
