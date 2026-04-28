@@ -7,32 +7,26 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements.txt /tmp/requirements.txt
 
-RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
-RUN pip3 uninstall -y pip setuptools packaging
+RUN pip3 install --no-cache-dir --no-compile -r /tmp/requirements.txt \
+    # Удаляем pip, setuptools, wheel и чистим кэш/тесты
+    && pip3 uninstall -y pip setuptools wheel 2>/dev/null || true \
+    && find /opt/venv -type d \( -name "__pycache__" -o -name "tests" -o -name "test" -o -name "docs" \) -exec rm -rf {} + || true
 
 FROM alpine:latest AS release
 
-LABEL desc="OpenCalc v1"
+LABEL desc="OpenCalc v2"
 
 RUN apk add --no-cache python3
 
 COPY --from=build /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN mkdir /project
+RUN mkdir -p /project /project/static /project/views
 WORKDIR /project
-COPY ./main.py /project/main.py
-COPY ./models.py /project/models.py
-COPY ./consts.py /project/consts.py
-COPY ./func.py /project/func.py
-
-RUN mkdir /project/static
+COPY ./main.py ./models.py ./consts.py ./func.py /project/
 COPY ./static /project/static
-
-RUN mkdir /project/views
 COPY views /project/views
 
-
-EXPOSE 8590
+EXPOSE 8564
 
 ENTRYPOINT ["python", "main.py"]
